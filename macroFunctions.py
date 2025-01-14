@@ -204,6 +204,79 @@ def plot_performance(folder):
             count +=1
     plt.show()
 
+""" Only possible to get the data using paid API
+def screen_example(symbols, key):
+     
+    #Dataframe with current price, 52-week high and ratio of high to current price. 
+    #Symbols is list-like 
+    
+    high = {}
+
+    # Loop to request data for each symbol individually
+    for ticker in symbols:
+        try:
+            # Making individual requests for each symbol
+            call = f'https://eodhd.com/api/eod-last-day/{ticker}.US?api_token={key}&fmt=json'
+            response = requests.get(call)
+            print(f"Response status code for {ticker}: {response.status_code}")
+            
+            if response.status_code == 200:
+                data = pd.DataFrame(response.json())
+                if not data.empty:
+                    # Assuming 'Technicals' contains 52-week high data
+                    high[ticker] = data['Technicals']['52WeekHigh']
+                else:
+                    print(f"No data returned for {ticker}.")
+            else:
+                print(f"Error fetching data for {ticker}: {response.text}")
+
+        except requests.exceptions.RequestException as e:
+            print(f"Request failed for {ticker}: {e}")
+
+    # Fetching the stock prices (kept the same as before)
+    call = f'https://eodhd.com/api/eod-bulk-last-day/US?api_token={key}&fmt=json'
+    try:
+        response = requests.get(call)
+        print(f"Response status code: {response.status_code}")
+        if response.status_code == 200 and response.text:
+            data = pd.DataFrame(response.json())
+            data.reset_index(drop=True)
+            mask = data.code.isin(symbols)
+            prices = data[['code', 'close']][mask]
+            high = pd.Series(high, name='high')
+            prices = prices.merge(high, left_on='code', right_index=True)
+            prices['ratio'] = prices['close'] / prices['high']
+            return prices
+        else:
+            print("Failed to fetch price data.")
+            return pd.DataFrame()
+
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed for price data: {e}")
+        return pd.DataFrame()  # Return an empty DataFrame in case of request failure
+
+    data.reset_index(drop=True)
+    
+    client = EodHistoricalData(key)
+    
+    for ticker in symbols:
+        try:
+            high[ticker] = client.get_fundamental_equity(f"{ticker}.US")['Technicals']['52WeekHigh']
+        except KeyError:
+            print(f"52WeekHigh data not found for {ticker}. Skipping...")
+            continue
+        except Exception as e:
+            print(f"Error fetching data for {ticker}: {e}")
+    
+    mask = data.code.isin(symbols)
+    prices = data[['code', 'close']][mask]
+    high = pd.Series(high, name='high')
+    prices = prices.merge(high, left_on='code', right_index=True)
+    prices['ratio'] = prices['close'] / prices['high']
+    
+    return prices
+"""
+
 
 
 
@@ -221,6 +294,8 @@ def main():
     #returns = get_return_data(*tickers, key=key)
     #print(returns[0])
     #plot_performance('healthCare')
+    #sp = get_sp()[:10]
+    #print(screen_example(sp,key))
 
 
 
