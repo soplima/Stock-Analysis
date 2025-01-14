@@ -17,7 +17,7 @@ Before using this repository, make sure you have Python installed along with the
 
 To install the required libraries, use `pip`:
 
-```bash
+bash
 pip install -r requirements.txt
 
 API Key Setup
