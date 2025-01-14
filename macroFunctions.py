@@ -2,7 +2,9 @@ from eod import EodHistoricalData
 import datetime as dt
 import json
 import os
+import math
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 import pandas as pd
 import numpy as np
 import requests
@@ -151,6 +153,59 @@ def plot_closes(closes, relative=False):
         plt.show()
 
 
+def get_return_data(*tickers, date=DEFAULT_DATA, adj_close=False, key):
+    """
+    saves closes and returns results to excel file
+    """
+    client = EodHistoricalData(key)
+    temp = pd.DataFrame()
+
+    for ticker in tickers:
+        try:
+            if adj_close:
+                temp[ticker] = pd.DataFrame(client.get_prices_eod(ticker,
+                from_=date))['adjusted_close']
+            else:
+                temp[ticker] = pd.DataFrame(client.get_prices_eod(ticker,
+                from_=date))['close']
+        except Exception as e:
+            print(f"{ticker} had a problem: {e}")
+    data = temp
+    data_instanteous = np.log(data).diff().dropna()
+    data.pct_change()
+
+    with pd.ExcelWriter('returns.xlsx', date_format='yyyy-mm-dd') as writer:
+        data.to_excel(writer, sheet_name='closes')
+        data_instanteous.to_excel(writer, sheet_name='returns')
+        data_pct.to_excel(writer, sheet_name='pct change')
+
+    print(f"Data retrieved and saved to returns.xlsx in {os.getcwd()}")
+    return data, data_instanteous, data_pct
+
+
+def plot_performance(folder):
+    """
+    returns figures containing relative performace of all stocks in folder
+    """
+    files = [file for file in os.listdir(folder) if not file.startswith('0')]
+    fig, ax = plt.subplots(math.ceil(len(files)/ 4), 4, figsize=(16,16))
+    count = 0
+    for row in range(math.ceil(len(files)/ 4)):
+        for column in range(4):
+            try:
+                data = pd.read_csv(f"{folder}/{files[count]}")['close']
+                data = (data/data[0] -1) * 100
+                ax[row,column].plot(data, label= files[count][:-4])
+                ax[row,column].legend()
+                ax[row,column].yaxis.set_major_formatter(mtick.PercentFormatter())
+                ax[row,column].axhline(0, c='r', ls='--')
+            except:
+                pass
+            count +=1
+    plt.show()
+
+
+
 
 def main():
     key = open('api_token.txt').read()
@@ -161,7 +216,14 @@ def main():
     #get_closing_prices(folder='test')
     #print(returns_from_closes('test', '0-closes.csv'))
     #print(get_corr(returns_from_closes('healthCare', '0-closes.csv')))
-    plot_closes('test/0-closes.csv')
+    #plot_closes('test/0-closes.csv', relative=True)
+    #tickers = "AMZN GOOG MCD NKE".split()
+    #returns = get_return_data(*tickers, key=key)
+    #print(returns[0])
+    #plot_performance('healthCare')
+
+
+
 
 if __name__ == '__main__':
     main()
