@@ -37,21 +37,13 @@ The Stock class encapsulates methods for working with individual stock data. The
 
 __init__(self, symbol, key, date=DEFAULT_DATA, folder=None)
 Initializes the stock object with the stock symbol, API key, date range, and folder where the data is stored.
-get_data(self)
-Fetches the stock data either from a local folder or by downloading from the API.
-calc_vol(self, df)
-Calculates various metrics like returns, volatility, and magnitude for the stock data.
-plot_return_dist(self)
-Plots the distribution of returns for the stock.
-plot_volatility(self)
-Plots the volatility of returns for the stock.
-plot_performance(self)
-Plots the relative performance of the stock.
-option_expiry(self)
-Returns a filtered DataFrame with data for option expiry weeks.
-low_vol_duration(self)
-Analyzes and returns the periods with low volatility.
-Examples
+- get_data(self): Fetches the stock data either from a local folder or by downloading from the API.
+- calc_vol(self, df): Calculates various metrics like returns, volatility, and magnitude for the stock data.
+- plot_return_dist(self): Plots the distribution of returns for the stock.
+- plot_volatility(self): Plots the volatility of returns for the stock.
+- plot_performance(self): Plots the relative performance of the stock.
+- option_expiry(self): Returns a filtered DataFrame with data for option expiry weeks.
+- low_vol_duration(self): Analyzes and returns the periods with low volatility.
 
 
 License
