@@ -1,0 +1,11 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+src/analyze/__init__.py
+src/analyze/macroFunctions.py
+src/analyze/microFunctions.py
+src/analyze.egg-info/PKG-INFO
+src/analyze.egg-info/SOURCES.txt
+src/analyze.egg-info/dependency_links.txt
+src/analyze.egg-info/top_level.txt

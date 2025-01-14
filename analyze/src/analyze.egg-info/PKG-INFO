@@ -1,0 +1,7 @@
+Metadata-Version: 2.2
+Name: analyze
+Version: 0.1
+Summary: library of functions for working with stocks
+License: : OSI Approved :: MIT License
+Requires-Python: >=3.6
+License-File: LICENSE

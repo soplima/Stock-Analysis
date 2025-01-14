@@ -25,11 +25,12 @@ class Stock:
         if self.symbol in available_data:
             data = pd.read_csv(f"{self.folder}/{self.symbol}.csv",
                                 index_col='date').round(2)
+            data.index = pd.to_datetime(data.index)
         else:
             client = EodHistoricalData(self.key)
             data = pd.DataFrame(client.get_prices_eod(self.symbol,
                                 from_=self.date)).round(2)
-            data.index = pd.DatetimeIndex(data.date).date
+            data.index = pd.DatetimeIndex(data.date)
             data.drop(columns=['date'], inplace= True)
             self.calc_vol(data)
         return data
@@ -73,6 +74,29 @@ class Stock:
         plt.title(f"From {start} to {end}", fontsize=12)
         plt.gca().yaxis.set_major_formatter(mtick.PercentFormatter())
         plt.show()
+        
+        
+    def option_expiry(self):
+        mask = np.where((self.data.index.day > 14) &
+                        (self.data.index.day < 22) &
+                        (self.data.index.dayofweek == 4), True, False)
+        return self.data[mask]
+    
+    
+    def low_vol_duration(self):
+        pd.set_option('mode.chained_assignment', None)
+        self.data['days<2sd'] = 0
+        count = 0
+        for row in range(len(self.data)):
+            if self.data['magnitude'].iloc[row] < 2:
+                count += 1
+                self.data['days<2sd'].iloc[row] = count
+            else: 
+                self.data['days<2sd'].iloc[row] = count
+                count = 0
+        low_vol = self.data[self.data.magnitude >= 2]
+        return low_vol
+        
             
 
 
@@ -83,7 +107,8 @@ def main():
     KEY = open('api_token.txt').read()
     test = Stock(symbol='TSLA', key=KEY)
     #print(test.data)
-    test.plot_performance()
+    #test.plot_performance()
+    print(test.low_vol_duration())
 
 
 
